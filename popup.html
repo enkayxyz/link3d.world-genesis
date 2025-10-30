@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link3d Memory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            width: 350px;
+            font-family: 'Inter', sans-serif;
+        }
+        /* Load Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        .btn {
+            @apply w-full px-4 py-3 font-semibold text-white rounded-lg shadow-md transition-colors duration-200;
+        }
+        .btn-primary {
+            @apply bg-blue-600 hover:bg-blue-700;
+        }
+        .btn-secondary {
+            @apply bg-green-600 hover:bg-green-700;
+        }
+    </style>
+</head>
+<body class="p-5 bg-gray-50">
+
+    <div class="flex items-center justify-between pb-3 border-b border-gray-200 mb-4">
+        <h1 class="text-xl font-bold text-gray-800">Link3d <span class="text-blue-600">Memory</span></h1>
+        <!-- We'll add a logo here later -->
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="text-center py-10">
+        <p class="text-gray-600 animate-pulse">Scanning profile...</p>
+    </div>
+
+    <!-- Auth State -->
+    <div id="auth-state" class="hidden text-center">
+        <h2 class="text-lg font-semibold mb-3 text-gray-700">Welcome to Link3d</h2>
+        <p class="text-gray-600 mb-5">Please connect your Google Account to save contact memories.</p>
+        <button id="auth-button" class="btn btn-primary">Authorize Google</button>
+    </div>
+
+    <!-- New Contact State -->
+    <div id="new-contact-state" class="hidden">
+        <h2 class="text-lg font-semibold mb-3 text-gray-700">New Contact</h2>
+        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-4">
+            <p class="text-sm text-gray-500">Name</p>
+            <p id="new-name" class="text-lg font-semibold text-gray-900"></p>
+            <p class="text-sm text-gray-500 mt-2">Title</p>
+            <p id="new-title" class="text-base text-gray-700"></p>
+        </div>
+        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 mb-5">
+            <p class="text-sm font-semibold text-blue-800 mb-1">AI Memory:</p>
+            <p id="new-memory" class="text-sm text-blue-700"></p>
+        </div>
+        <button id="create-contact-button" class="btn btn-primary">Create Contact</button>
+    </div>
+
+    <!-- Existing Contact State -->
+    <div id="existing-contact-state" class="hidden">
+        <h2 class="text-lg font-semibold mb-3 text-green-700">Contact Found!</h2>
+        <div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-4">
+            <p class="text-sm text-gray-500">Name</p>
+            <p id="existing-name" class="text-lg font-semibold text-gray-900"></p>
+        </div>
+        <div class="bg-green-50 p-3 rounded-lg border border-green-200 mb-5">
+            <p class="text-sm font-semibold text-green-800 mb-1">Add New AI Memory:</p>
+            <p id="existing-memory" class="text-sm text-green-700"></p>
+        </div>
+        <button id="update-contact-button" class="btn btn-secondary">Add Memory to Contact</button>
+    </div>
+
+    <!-- Success State -->
+    <div id="success-state" class="hidden text-center py-10">
+        <p class="text-2xl text-green-600 font-semibold">Success!</p>
+        <p id="success-message" class="text-gray-700"></p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden text-center py-10">
+        <p class="text-2xl text-red-600 font-semibold">Error</p>
+        <p id="error-message" class="text-gray-700"></p>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
