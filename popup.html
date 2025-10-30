@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Contact Sync</title>
+  <style>
+    body {
+      width: 400px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+    }
+    
+    h2 {
+      margin-top: 0;
+      color: #0a66c2;
+      font-size: 18px;
+    }
+    
+    .status {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    .status.info {
+      background-color: #e7f3ff;
+      color: #014361;
+      border: 1px solid #0a66c2;
+    }
+    
+    .status.error {
+      background-color: #fee;
+      color: #c00;
+      border: 1px solid #c00;
+    }
+    
+    .status.success {
+      background-color: #e6f4ea;
+      color: #137333;
+      border: 1px solid #137333;
+    }
+    
+    .profile-info {
+      background-color: #f3f6f8;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+    
+    .profile-info h3 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+      color: #000;
+    }
+    
+    .profile-info p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .profile-info .memory {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    
+    .profile-info .memory strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #0a66c2;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    button.primary {
+      background-color: #0a66c2;
+      color: white;
+    }
+    
+    button.primary:hover {
+      background-color: #004182;
+    }
+    
+    button.secondary {
+      background-color: #666;
+      color: white;
+    }
+    
+    button.secondary:hover {
+      background-color: #444;
+    }
+    
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #0a66c2;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>LinkedIn Contact Sync</h2>
+  
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+    <p>Processing...</p>
+  </div>
+  
+  <div id="status" class="status hidden"></div>
+  
+  <div id="content" class="hidden">
+    <div class="profile-info">
+      <h3 id="profileName">-</h3>
+      <p id="profileTitle">-</p>
+      <div class="memory">
+        <strong>AI Summary:</strong>
+        <div id="profileMemory">-</div>
+      </div>
+    </div>
+    
+    <div class="buttons">
+      <button id="newContactBtn" class="primary">New Contact</button>
+      <button id="updateContactBtn" class="secondary">Update Contact</button>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
