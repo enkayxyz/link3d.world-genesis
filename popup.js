@@ -52,14 +52,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Generate AI summary using chrome.ai
 async function generateAISummary() {
   try {
-    // Check if chrome.ai is available
-    if (!chrome.aiOriginTrial || !chrome.aiOriginTrial.languageModel) {
+    // Check for different Chrome AI API versions
+    const aiAPI = chrome.ai || chrome.aiOriginTrial;
+    
+    if (!aiAPI || !aiAPI.languageModel) {
       console.warn('Chrome AI not available, using fallback summary');
       profileData.memory = `Professional summary: ${profileData.title}. ${profileData.about ? profileData.about.substring(0, 150) + '...' : 'No additional information available.'}`;
       return;
     }
     
-    const session = await chrome.aiOriginTrial.languageModel.create({
+    const session = await aiAPI.languageModel.create({
       systemPrompt: 'You are a helpful assistant that creates concise professional summaries. Summarize the following LinkedIn "About" section into a brief professional memory (2-3 sentences max).'
     });
     
