@@ -11,6 +11,7 @@
 
 // v21: Import our specialist "robot" agent!
 import { extractProfileData } from './l3_extractor.js';
+import { geminiApiKey } from './config.js';
 
 // --- Mutable State ---
 // Holds the latest contact package so popup actions (create/update) can reuse it.
@@ -355,10 +356,8 @@ async function callGeminiSummarizer(aboutText) {
 
 // --- Gemini Helper ---
 async function getGeminiApiKey() {
-  // Retrieve from chrome.storage (set manually for demo)
-  // In console: chrome.storage.sync.set({ geminiApiKey: "your-key" });
-  const result = await chrome.storage.sync.get("geminiApiKey");
-  return result.geminiApiKey || null; // Return null if not set
+  // Key loaded from config.js (gitignored)
+  return geminiApiKey;
 }
 
 
