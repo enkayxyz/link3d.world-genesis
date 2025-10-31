@@ -22,8 +22,8 @@ const PEOPLE_API_SCOPE = "https://www.googleapis.com/auth/contacts";
 const PEOPLE_API_URL = "https://people.googleapis.com/v1/people";
 
 // --- Gemini Fallback Constants ---
-const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent";
-const GEMINI_MODEL = "gemini-pro"; // Stable model for hackathon
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GEMINI_MODEL = "gemini-2.0-flash"; // Latest model
 
 // --- AI Prompts ---
 const GEMINI_EXTRACT_PROMPT_PREFIX = `
@@ -269,16 +269,15 @@ async function callGeminiExtractor(rawText) {
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: `${GEMINI_EXTRACT_PROMPT_PREFIX}${rawText}\n"""` }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
     }),
   });
   
   if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
   const data = await response.json();
-  const text = data.candidates[0].content.parts[0].text.trim();
-  // Parse JSON from the text response
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error("No JSON object found in Gemini response.");
-  const jsonString = jsonMatch[0];
+  const jsonString = data.candidates[0].content.parts[0].text.trim();
   return JSON.parse(jsonString);
 }
 
