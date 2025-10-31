@@ -21,6 +21,10 @@ let latestContactPackage = null;
 const PEOPLE_API_SCOPE = "https://www.googleapis.com/auth/contacts"; 
 const PEOPLE_API_URL = "https://people.googleapis.com/v1/people";
 
+// --- Gemini Fallback Constants ---
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent";
+const GEMINI_MODEL = "gemini-pro"; // Stable model for hackathon
+
 // --- AI Prompts ---
 const GEMINI_EXTRACT_PROMPT_PREFIX = `
 You are an expert, silent data extractor. From the following raw text dump of a LinkedIn profile, extract:
@@ -225,63 +229,108 @@ function getAuthToken(interactive) {
 // --- 4. AI Module --- (Scraper is now in l3_extractor.js)
 
 /**
- * Calls the built-in Gemini Nano model (v22 Extractor)
+ * Calls the built-in Gemini Nano model (v22 Extractor) or OpenAI fallback
  * @param {string} rawText - The main column text dump from the page.
  */
 async function callGeminiExtractor(rawText) {
-  log("Analyzer(v22): Checking AI model availability...");
-  if (!chrome.ai) { throw new Error("chrome.ai API not available."); }
-  const aiStatus = await chrome.ai.canCreateTextSession();
-  if (aiStatus !== "readily") { throw new Error(`AI model not ready: ${aiStatus}`); }
-
-  log("Analyzer(v22): AI model is ready. Creating EXTRACTOR session...");
-  const session = await chrome.ai.createTextSession();
-  log("Analyzer(v22): AI session created. Sending EXTRACTOR prompt...");
-
-  const prompt = `${GEMINI_EXTRACT_PROMPT_PREFIX}${rawText}\n"""`;
-  const aiResponse = await session.prompt(prompt);
-  log("Analyzer(v22): AI EXTRACTOR response received:", aiResponse);
+  log("Analyzer(v22): Attempting AI extraction...");
   
-  session.destroy();
-
-  // v22 (from v20): Implement a "smarter" JSON parser.
-  try {
-    const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("No JSON object found in AI response.");
+  // Try chrome.ai first
+  if (chrome.ai) {
+    try {
+      const aiStatus = await chrome.ai.canCreateTextSession();
+      if (aiStatus === "readily") {
+        log("Analyzer(v22): Using chrome.ai for extraction...");
+        const session = await chrome.ai.createTextSession();
+        const prompt = `${GEMINI_EXTRACT_PROMPT_PREFIX}${rawText}\n"""`;
+        const aiResponse = await session.prompt(prompt);
+        session.destroy();
+        
+        // v22 (from v20): Implement a "smarter" JSON parser.
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("No JSON object found in AI response.");
+        const jsonString = jsonMatch[0];
+        return JSON.parse(jsonString);
+      }
+    } catch (e) {
+      log("Analyzer(v22): chrome.ai extraction failed, falling back to OpenAI:", e.message);
     }
-    
-    const jsonString = jsonMatch[0];
-    const parsedData = JSON.parse(jsonString);
-    return parsedData;
-  } catch (e) {
-    log("Analyzer(v22): AI Extractor FAILED to parse JSON:", e.message, "Raw response:", aiResponse);
-    throw new Error("AI failed to return valid JSON.");
   }
+  
+  // Fallback to Gemini
+  log("Analyzer(v22): Using Gemini fallback for extraction...");
+  const apiKey = await getGeminiApiKey();
+  if (!apiKey) throw new Error("No Gemini API key available.");
+  
+  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: `${GEMINI_EXTRACT_PROMPT_PREFIX}${rawText}\n"""` }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
+    }),
+  });
+  
+  if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
+  const data = await response.json();
+  const jsonString = data.candidates[0].content.parts[0].text.trim();
+  return JSON.parse(jsonString);
 }
 
 /**
- * Calls the built-in Gemini Nano model (v22 Summarizer)
+ * Calls the built-in Gemini Nano model (v22 Summarizer) or OpenAI fallback
  * @param {string} aboutText - The profile bio to summarize.
  */
 async function callGeminiSummarizer(aboutText) {
-  log("Analyzer(v22): Checking AI model availability...");
-  if (!chrome.ai) { throw new Error("chrome.ai API not available."); }
-  const aiStatus = await chrome.ai.canCreateTextSession();
-  if (aiStatus !== "readily") { throw new Error(`AI model not ready: ${aiStatus}`); }
-
-  log("Analyzer(v22): AI model is ready. Creating SUMMARY session...");
-  const session = await chrome.ai.createTextSession();
-  log("Analyzer(v22): AI session created. Sending SUMMARY prompt...");
-
-  const prompt = `${GEMINI_SUMMARY_PROMPT_PREFIX}${aboutText}${GEMINI_PROMPT_SUFFIX}`;
-  const aiResponse = await session.prompt(prompt);
-  log("Analyzer(v22): AI SUMMARY response received.");
+  log("Analyzer(v22): Attempting AI summarization...");
   
-  // Clean up the response
-  const summary = aiResponse.replace(/["*]/g, "").trim();
-  session.destroy();
-  return summary;
+  // Try chrome.ai first
+  if (chrome.ai) {
+    try {
+      const aiStatus = await chrome.ai.canCreateTextSession();
+      if (aiStatus === "readily") {
+        log("Analyzer(v22): Using chrome.ai for summarization...");
+        const session = await chrome.ai.createTextSession();
+        const prompt = `${GEMINI_SUMMARY_PROMPT_PREFIX}${aboutText}${GEMINI_PROMPT_SUFFIX}`;
+        const aiResponse = await session.prompt(prompt);
+        session.destroy();
+        
+        return aiResponse.replace(/["*]/g, "").trim();
+      }
+    } catch (e) {
+      log("Analyzer(v22): chrome.ai summarization failed, falling back to OpenAI:", e.message);
+    }
+  }
+  
+  // Fallback to Gemini
+  log("Analyzer(v22): Using Gemini fallback for summarization...");
+  const apiKey = await getGeminiApiKey();
+  if (!apiKey) throw new Error("No Gemini API key available.");
+  
+  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: `${GEMINI_SUMMARY_PROMPT_PREFIX}${aboutText}${GEMINI_PROMPT_SUFFIX}` }] }],
+    }),
+  });
+  
+  if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text.trim();
+}
+
+
+// --- Gemini Helper ---
+async function getGeminiApiKey() {
+  // Temporary hardcoded key for hackathon demo
+  return "AIzaSyDSARQv4M78cKdTuE0-oZes1vZPFBKi5n4";
 }
 
 

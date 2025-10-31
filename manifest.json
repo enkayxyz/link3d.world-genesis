@@ -11,7 +11,8 @@
     "ai"
   ],
   "host_permissions": [
-    "https://people.googleapis.com/*"
+    "https://people.googleapis.com/*",
+    "https://generativelanguage.googleapis.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -31,7 +32,7 @@
     "type": "module" 
   },
   "oauth2": {
-    "client_id": "YOUR_GOOGLE_CLIENT_ID",
+    "client_id": "288229972256-u94ehd97lma23rkbdfj1575e54h8pvup.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/contacts"
     ]
