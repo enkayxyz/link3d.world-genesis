@@ -23,6 +23,12 @@ function updateProgress(stepId, status) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Reset all step icons to pending on load
+  document.querySelectorAll('.step-icon').forEach(icon => {
+    icon.classList.remove('active', 'success', 'failed');
+    icon.classList.add('pending');
+  });
+  
   showState('loading-state');
   setStatusLight('#f59e0b');
 
