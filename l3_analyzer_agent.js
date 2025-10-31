@@ -355,8 +355,10 @@ async function callGeminiSummarizer(aboutText) {
 
 // --- Gemini Helper ---
 async function getGeminiApiKey() {
-  // Temporary hardcoded key for hackathon demo
-  return "AIzaSyDSARQv4M78cKdTuE0-oZes1vZPFBKi5n4";
+  // Retrieve from chrome.storage (set manually for demo)
+  // In console: chrome.storage.sync.set({ geminiApiKey: "your-key" });
+  const result = await chrome.storage.sync.get("geminiApiKey");
+  return result.geminiApiKey || null; // Return null if not set
 }
 
 
