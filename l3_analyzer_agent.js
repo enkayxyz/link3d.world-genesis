@@ -66,7 +66,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           handleProcessProfile(tabs[0].id);
         } else {
           log("Analyzer(v22) CRITICAL: Could not get active tab ID.");
-          sendMessageToPopup({ action: "showError", error: "Could not find active tab." });
+          sendMessageToPopup({ action: "progress", step: "a", status: "failed", details: "Could not find active tab." });
         }
       });
     }
@@ -87,7 +87,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       })
       .catch((error) => {
         log("Analyzer(v22): Interactive auth failed:", error);
-        sendMessageToPopup({ action: "showError", error: `Authorization failed: ${error.message}` });
+        sendMessageToPopup({ action: "progress", step: "e", status: "failed", details: `Authorization failed: ${error.message}` });
       });
     if (typeof sendResponse === "function") {
       sendResponse({ started: true });
@@ -454,7 +454,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (!latestContactPackage) {
       log("Analyzer(v22): No contact package available for create.");
-      sendMessageToPopup({ action: "showError", error: "No contact data available. Please scan again." });
+      sendMessageToPopup({ action: "progress", step: "g", status: "failed", details: "No contact data available. Please scan again." });
       return true;
     }
 
@@ -485,11 +485,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         ...latestContactPackage,
         existingContact: data
       };
+      sendMessageToPopup({ action: "progress", step: "g", status: "success", details: "Contact created successfully!" });
       sendMessageToPopup({ action: "showSuccess", message: "Contact created!" });
     })
     .catch(error => {
       log("Analyzer(v22): Contact CREATION FAILED:", error);
-      sendMessageToPopup({ action: "showError", error: `Create failed: ${error.message}` });
+      sendMessageToPopup({ action: "progress", step: "g", status: "failed", details: `Create failed: ${error.message}` });
     });
     
     return true; // Async
@@ -505,7 +506,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (!latestContactPackage || !latestContactPackage.existingContact) {
       log("Analyzer(v22): No existing contact data available for update.");
-      sendMessageToPopup({ action: "showError", error: "No existing contact data. Please rescan." });
+      sendMessageToPopup({ action: "progress", step: "g", status: "failed", details: "No existing contact data. Please rescan." });
       return true;
     }
 
@@ -544,7 +545,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     })
     .catch(error => {
       log("Analyzer(v22): Contact UPDATE FAILED:", error);
-      sendMessageToPopup({ action: "showError", error: `Update failed: ${error.message}` });
+      sendMessageToPopup({ action: "progress", step: "g", status: "failed", details: `Update failed: ${error.message}` });
     });
 
     return true; // Async

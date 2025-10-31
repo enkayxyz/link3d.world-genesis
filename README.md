@@ -1,52 +1,236 @@
-Link3d.world-genesis (Chrome AI Hackathon)
+# Link3d Memory - AI-Powered Contact Intelligence
 
-Link3d-Memory is a Chrome extension built for the Google Chrome AI Hackathon. It uses the built-in chrome.ai (Gemini Nano) to turn your Google Contacts into a lightweight, intelligent "memory" CRM.
+> **Chrome AI Hackathon 2025 Submission**  
+> Transform your Google Contacts into an intelligent memory system using Chrome's built-in AI
 
-The Problem
+[![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-blue?logo=google-chrome)](https://github.com/enkayxyz/link3d.world-genesis)
+[![AI Powered](https://img.shields.io/badge/AI-Chrome%20AI%20%2B%20Gemini-green)](https://github.com/enkayxyz/link3d.world-genesis)
 
-You meet (or re-discover) interesting people on LinkedIn, but your Google Contacts are "dumb." They just store a name and an email. When you see "Nirav Shah" in your contacts, you have no context of who he is or why he's there.
+## 🎯 The Problem
 
-Our Solution: The "AI-Memory"
+You meet interesting people on LinkedIn, but your Google Contacts are "dumb." When you see "Phylian Kipchirchir" in your contacts, you have no context of who they are, what they do, or why they matter to you.
 
-Link3d-Memory solves this by creating an AI-powered "memory" of your contacts.
+## 💡 Our Solution
 
-When you're on a LinkedIn profile and click the Link3d icon, the extension:
+**Link3d Memory** creates an AI-powered "memory" for every contact, automatically:
 
-Scrapes the profile for their Name, Title, and "About" section.
+1. **Scrapes LinkedIn profiles** for name, title, and bio
+2. **Uses Chrome AI (Gemini Nano)** to generate intelligent summaries
+3. **Syncs with Google Contacts** - creates new or updates existing contacts
+4. **Tracks relationship history** with timestamped AI memories
 
-Uses chrome.ai to instantly create a one-sentence AI summary of their bio (e.g., "Experienced banking and tech exec building a global financial solution.").
+### Visual Demo
 
-Searches your Google Contacts to see if you already know them.
+When you click the extension on a LinkedIn profile:
 
-This leads to two powerful workflows:
+```
+┌─────────────────────────────────────────┐
+│  ●  Link3d Memory                    ◉  │
+├─────────────────────────────────────────┤
+│  1→2→3→4→5→6→7  (Progress Tracker)     │
+│  Scrape → AI → Chrome → Gemini →        │
+│  Summary → Search → Sync                 │
+├─────────────────────────────────────────┤
+│  Phylian Kipchirchir                    │
+│  AI Investment Analyst | Charted Growth │
+│                                          │
+│  AI Memory:                              │
+│  Phylian is a Data Analyst and founder  │
+│  of Charted Growth, providing AI market │
+│  intelligence for investors & execs.    │
+│                                          │
+│  ✓ Synced to Google Contacts            │
+└─────────────────────────────────────────┘
+```
 
-1. New Contact: Add a Memory
+## 🚀 Features
 
-If they're a new contact, Link3d creates a new Google Contact for you, automatically adding:
+### 🤖 **Dual AI System**
+- **Chrome AI First**: Uses built-in Gemini Nano for instant, on-device processing
+- **Gemini 2.0 Flash Fallback**: Cloud AI when Chrome AI unavailable
+- **Smart Extraction**: Structured data extraction from LinkedIn profiles
 
-Full Name
+### 📊 **FedEx-Style Progress Tracking**
+- **7-step horizontal timeline** showing real-time progress
+- **Color-coded states**: Gray (pending), Blue (active), Green (success), Red (failed)
+- **Hover tooltips** for detailed step information
+- **Persistent across views** - always visible
 
-Job Title
+### 🔄 **Auto-Sync Workflow**
+- **One-click operation**: Scan → Extract → Analyze → Sync
+- **Smart contact detection**: Creates new or updates existing contacts
+- **Timestamped memories**: Running history of your relationship
+- **Google Contacts integration**: Seamless OAuth 2.0 authentication
 
-LinkedIn Profile URL
+### 🎨 **Clean, Modern UI**
+- **650px horizontal layout** - all steps in one line
+- **Glassmorphic design** with backdrop blur effects
+- **Responsive animations** for step transitions
+- **Professional visual hierarchy**
 
-The AI-Generated "Memory" (in the "Notes" field)
+## 🛠️ Tech Stack
 
-2. Existing Contact: Update Your Memory
+| Technology | Purpose |
+|------------|---------|
+| **Chrome AI (Gemini Nano)** | Primary on-device AI summarization |
+| **Gemini 2.0 Flash API** | Fallback cloud AI with JSON mode |
+| **Google People API** | Contact management & sync |
+| **Chrome Extension Manifest V3** | Modern extension architecture |
+| **OAuth 2.0** | Secure Google account authorization |
 
-If you already have them in your contacts, Link3d appends the new AI-generated summary with a timestamp to their notes.
+## 📦 Installation
 
-Now, your contact's note field looks like this:
+### Prerequisites
+- Google Chrome (v128+) with AI features enabled
+- Gemini API key (for fallback)
+- Google Cloud OAuth credentials
 
-[10/30/2025]: "Experienced banking and tech exec building a new financial solution."
+### Setup
 
-[05/15/2026]: "Just raised a $10M Series A for his new venture, Kosha."
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/enkayxyz/link3d.world-genesis.git
+   cd link3d.world-genesis
+   ```
 
-You get a running history of their career and your relationship, turning Google Contacts into the simplest, smartest CRM you've ever used.
+2. **Configure API Keys**
+   ```bash
+   # Create config.js (gitignored)
+   cat > config.js << EOF
+   export const GEMINI_API_KEY = "your-gemini-api-key-here";
+   EOF
+   ```
 
-Tech Stack (Hackathon Focus)
+3. **Update OAuth Client ID**
+   - Get OAuth credentials from [Google Cloud Console](https://console.cloud.google.com)
+   - Update `manifest.json`:
+     ```json
+     {
+       "oauth2": {
+         "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com"
+       }
+     }
+     ```
 
-chrome.ai (Gemini Nano): The core of our project. Used for on-device, instant summarization of the LinkedIn "About" section.
+4. **Load Extension**
+   - Open Chrome: `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the `link3d.world-genesis` folder
+
+## 🎮 Usage
+
+1. **Navigate** to any LinkedIn profile (e.g., `linkedin.com/in/username`)
+2. **Click** the Link3d Memory extension icon
+3. **Watch** the progress tracker as it:
+   - Scrapes the profile
+   - Extracts structured data
+   - Generates AI summary (Chrome AI → Gemini fallback)
+   - Searches Google Contacts
+   - Auto-syncs (creates or updates contact)
+4. **Done!** Contact is now in Google Contacts with AI memory
+
+### Example Output
+
+**Google Contact Note:**
+```
+[10/31/2025]: Phylian is a Data Analyst and founder of Charted Growth, 
+providing AI market intelligence and data-driven insights on the AI sector 
+for investors and executives.
+```
+
+## 🏗️ Architecture
+
+```
+┌─────────────┐
+│   Popup.js  │ ← User Interface
+│  (Frontend) │
+└──────┬──────┘
+       │
+       ↓
+┌─────────────┐
+│ l3_analyzer │ ← Background Worker
+│  _agent.js  │   (Orchestration)
+└──────┬──────┘
+       │
+       ├→ l3_extractor.js ─→ LinkedIn DOM
+       │
+       ├→ Chrome AI (Gemini Nano)
+       │     ↓ (fallback)
+       └→ Gemini 2.0 Flash API
+             ↓
+       Google People API (Contacts)
+```
+
+## 🎯 Hackathon Highlights
+
+### Why Link3d Memory Stands Out
+
+1. **Real Chrome AI Usage**: Primary AI is Chrome's built-in Gemini Nano, not just API calls
+2. **Practical Use Case**: Solves a real problem - dumb contacts become intelligent memories
+3. **Production-Ready**: Full error handling, retry logic, OAuth integration
+4. **Beautiful UX**: FedEx-like progress tracking with smooth animations
+5. **Auto-Sync Magic**: One-click operation, no manual steps needed
+
+### Chrome AI Implementation
+
+- **Prompt API**: Uses `ai.languageModel.create()` for summarization
+- **On-Device Processing**: Fast, private, no API rate limits
+- **Graceful Fallback**: Automatically switches to Gemini 2.0 Flash if Chrome AI unavailable
+- **JSON Mode**: Structured extraction with validation
+
+## 📝 Project Files
+
+```
+link3d.world-genesis/
+├── manifest.json          # Extension config + OAuth
+├── popup.html            # UI (650px, horizontal progress)
+├── popup.js              # Frontend logic + state management
+├── l3_analyzer_agent.js  # Background worker + AI orchestration
+├── l3_extractor.js       # LinkedIn scraping (semantic selectors)
+├── config.js             # API keys (gitignored)
+├── icons/                # Extension icons
+└── docs/                 # Documentation
+    ├── ARCHITECTURE.md   # System design
+    ├── INSTALL.md        # Setup guide
+    ├── TEST_CASES.md     # Testing scenarios
+    └── HACKATHON_SPECS.md # Submission details
+```
+
+## 🐛 Known Limitations
+
+- **Chrome AI EPP**: Requires Chrome with experimental AI features enabled
+- **OAuth Setup**: Needs Google Cloud project setup for production use
+- **LinkedIn Structure**: May break if LinkedIn changes their DOM structure
+- **Rate Limits**: Gemini fallback has 15 RPM limit (free tier)
+
+## 🚧 Future Roadmap
+
+- [ ] Support for other social platforms (Twitter, GitHub)
+- [ ] Voice memos attached to contacts
+- [ ] Relationship strength scoring
+- [ ] Meeting notes auto-sync
+- [ ] Mobile companion app
+
+## 👥 Team
+
+**Solo Hackathon Project**
+- Developed by: [@enkayxyz](https://github.com/enkayxyz)
+- Hackathon: Chrome AI Hackathon 2025
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file
+
+## 🙏 Acknowledgments
+
+- Google Chrome AI Team for Gemini Nano integration
+- Chrome Extensions team for Manifest V3 architecture
+- Google People API for contact management
+
+---
+
+**Built with ❤️ for the Chrome AI Hackathon 2025**
 
 chrome.identity: For secure, seamless Google OAuth2.
 
