@@ -105,6 +105,17 @@
       align-items: center;
       margin-bottom: 12px;
       position: relative;
+      padding-left: 20px;
+    }
+    .progress-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 32px;
+      width: 2px;
+      height: calc(100% - 24px);
+      background: linear-gradient(to bottom, #3b82f6, #e2e8f0);
+      z-index: 1;
     }
     .progress-step:last-child {
       margin-bottom: 0;

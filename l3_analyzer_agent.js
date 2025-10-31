@@ -129,8 +129,8 @@ async function handleProcessProfile(tabId) {
     sendMessageToPopup({ action: "progress", step: "a", status: "success", details: scrapeResult.allText.substring(0, 200) + "..." });
   } catch (error) {
     log("Analyzer(v22) CRITICAL ERROR in handleProcessProfile (Scrape):", error);
-    sendMessageToPopup({ action: "progress", step: "a", status: "failed" });
-    sendMessageToPopup({ action: "showError", error: `Scrape Error: ${error.message}` });
+    sendMessageToPopup({ action: "progress", step: "a", status: "failed", details: `Scrape Error: ${error.message}` });
+    // Don't send showError, let progress handle it
     return;
   }
 
@@ -148,10 +148,10 @@ async function handleProcessProfile(tabId) {
     sendMessageToPopup({ action: "progress", step: "d", status: "success" });
   } catch (error) {
     log("Analyzer(v22) CRITICAL ERROR in handleProcessProfile (AI Extract):", error);
-    sendMessageToPopup({ action: "progress", step: "b", status: "failed" });
+    sendMessageToPopup({ action: "progress", step: "b", status: "failed", details: `AI Extract Error: ${error.message}` });
     sendMessageToPopup({ action: "progress", step: "c", status: "failed" });
     sendMessageToPopup({ action: "progress", step: "d", status: "failed" });
-    sendMessageToPopup({ action: "showError", error: `AI Extract Error: ${error.message}` });
+    // Don't send showError
     return;
   }
   
@@ -218,8 +218,16 @@ async function handleProcessProfile(tabId) {
 
   } catch (error) {
     log("Analyzer(v22) CRITICAL ERROR in handleProcessProfile (Search/API):", error);
-    sendMessageToPopup({ action: "progress", step: "g", status: "failed" });
-    sendMessageToPopup({ action: "showError", error: `Google API Error: ${error.message}` });
+    sendMessageToPopup({ action: "progress", step: "g", status: "failed", details: `Google API Error: ${error.message}` });
+    // Don't send showError, show success with failed sync
+    sendMessageToPopup({
+      action: "showNewContact",
+      data: {
+        name: profileData.name,
+        title: profileData.title,
+        aiSummary: aiSummary
+      }
+    });
   }
 }
 
