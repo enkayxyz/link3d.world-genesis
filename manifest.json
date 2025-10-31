@@ -1,31 +1,18 @@
 {
   "manifest_version": 3,
   "name": "Link3d-Memory (AI Hackathon)",
-  "version": "0.1.0",
-  "description": "Uses chrome.ai to summarize LinkedIn profiles into Google Contact 'memories'.",
-
+  "version": "1.0.0",
+  "description": "Uses built-in AI to summarize LinkedIn profiles and sync them as 'memories' to Google Contacts.",
   "permissions": [
-    "identity",
-    "storage",
-    "activeTab",
-    "scripting"
+    "identity", 
+    "storage", 
+    "activeTab", 
+    "scripting",
+    "ai"
   ],
-
   "host_permissions": [
-    "https://*.linkedin.com/*"
+    "https://people.googleapis.com/*"
   ],
-
-  "oauth2": {
-    "client_id": "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
-    "scopes": [
-      "httpsa://www.googleapis.com/auth/contacts"
-    ]
-  },
-
-  "background": {
-    "service_worker": "background.js"
-  },
-
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -34,16 +21,29 @@
       "128": "icons/icon128.png"
     }
   },
-
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-
-  "ai": {
-    "capabilities": [
-      "text_processing"
+  "background": {
+    "service_worker": "l3_analyzer_agent.js",
+    "type": "module" 
+  },
+  "oauth2": {
+    "client_id": "YOUR_GOOGLE_CLIENT_ID",
+    "scopes": [
+      "https://www.googleapis.com/auth/contacts"
     ]
-  }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline';"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [ "l3_extractor.js" ],
+      "matches": [ "<all_urls>" ]
+    }
+  ]
 }
+
