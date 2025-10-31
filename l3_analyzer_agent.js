@@ -109,8 +109,10 @@ async function handleProcessProfile(tabId) {
   try {
     token = await getAuthToken(false); // `interactive: false`
     log("Analyzer(v22): Auth token retrieved successfully.");
+    sendMessageToPopup({ action: "progress", step: "f", status: "success" });
   } catch (error) {
     log("Analyzer(v22): Auth token failed (silent). Sending 'authRequired' to popup.", error);
+    sendMessageToPopup({ action: "progress", step: "f", status: "failed" });
     sendMessageToPopup({ action: "authRequired" });
     return;
   }
@@ -124,8 +126,10 @@ async function handleProcessProfile(tabId) {
       throw new Error(`Extractor Agent failed. (v22)`);
     }
     log(`Analyzer(v22): Extractor scraped ${scrapeResult.allText.length} characters.`);
+    sendMessageToPopup({ action: "progress", step: "a", status: "success", details: scrapeResult.allText.substring(0, 200) + "..." });
   } catch (error) {
     log("Analyzer(v22) CRITICAL ERROR in handleProcessProfile (Scrape):", error);
+    sendMessageToPopup({ action: "progress", step: "a", status: "failed" });
     sendMessageToPopup({ action: "showError", error: `Scrape Error: ${error.message}` });
     return;
   }
@@ -133,13 +137,20 @@ async function handleProcessProfile(tabId) {
   // 3. Call AI (Smart Brain - Part 1: Extractor)
   let extractedData;
   try {
+    sendMessageToPopup({ action: "progress", step: "b", status: "active" });
     extractedData = await callGeminiExtractor(scrapeResult.allText); 
     if (!extractedData || !extractedData.name || !extractedData.title) {
       throw new Error("AI Extractor failed to find Name or Title in text.");
     }
     log("Analyzer(v22): AI Extractor found data:", extractedData);
+    sendMessageToPopup({ action: "progress", step: "b", status: "success" });
+    sendMessageToPopup({ action: "progress", step: "c", status: "success" });
+    sendMessageToPopup({ action: "progress", step: "d", status: "success" });
   } catch (error) {
     log("Analyzer(v22) CRITICAL ERROR in handleProcessProfile (AI Extract):", error);
+    sendMessageToPopup({ action: "progress", step: "b", status: "failed" });
+    sendMessageToPopup({ action: "progress", step: "c", status: "failed" });
+    sendMessageToPopup({ action: "progress", step: "d", status: "failed" });
     sendMessageToPopup({ action: "showError", error: `AI Extract Error: ${error.message}` });
     return;
   }
@@ -158,6 +169,8 @@ async function handleProcessProfile(tabId) {
     log("Analyzer(v22): Skipping AI Summary, no 'About' section found.");
   }
   
+  sendMessageToPopup({ action: "progress", step: "e", status: "success", details: `Name: ${extractedData.name}\nTitle: ${extractedData.title}\nSummary: ${aiSummary}` });
+  
   // 5. Package up the data (v22)
   const profileData = {
       name: extractedData.name,
@@ -168,6 +181,7 @@ async function handleProcessProfile(tabId) {
 
   // 6. Search Google Contacts (v22: Search by URL)
   try {
+    sendMessageToPopup({ action: "progress", step: "g", status: "active" });
     const searchResult = await searchContact(token, profileData.profileUrl, profileData.name);
     
     // Store the package so create/update can use it later.
@@ -180,6 +194,7 @@ async function handleProcessProfile(tabId) {
 
     if (searchResult) {
       log("Analyzer(v22): Contact FOUND:", searchResult.resourceName);
+      sendMessageToPopup({ action: "progress", step: "g", status: "success", details: "Contact found and ready to update." });
       sendMessageToPopup({
         action: "showContactFound",
         data: {
@@ -190,6 +205,7 @@ async function handleProcessProfile(tabId) {
       });
     } else {
       log("Analyzer(v22): Contact NOT found. Sending 'newContact' to popup.");
+      sendMessageToPopup({ action: "progress", step: "g", status: "success", details: "New contact ready to create." });
       sendMessageToPopup({
         action: "showNewContact",
         data: {
@@ -202,6 +218,7 @@ async function handleProcessProfile(tabId) {
 
   } catch (error) {
     log("Analyzer(v22) CRITICAL ERROR in handleProcessProfile (Search/API):", error);
+    sendMessageToPopup({ action: "progress", step: "g", status: "failed" });
     sendMessageToPopup({ action: "showError", error: `Google API Error: ${error.message}` });
   }
 }

@@ -25,6 +25,22 @@ function setStatusLight(color) {
   }
 }
 
+function updateProgress(stepId, status, details = '') {
+  const step = document.getElementById(`step-${stepId}`);
+  if (!step) return;
+  
+  const icon = step.querySelector('.step-icon');
+  const tooltip = document.getElementById(`tooltip-${stepId}`);
+  
+  // Remove all status classes
+  icon.classList.remove('pending', 'active', 'success', 'failed');
+  icon.classList.add(status);
+  
+  if (details && tooltip) {
+    tooltip.textContent = details;
+  }
+}
+
 // --- Main Execution ---
 document.addEventListener('DOMContentLoaded', () => {
   // Set initial status to loading
@@ -86,6 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- Listener for ALL messages from the background script ---
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   switch (message.action) {
+    
+    case "progress":
+      updateProgress(message.step, message.status, message.details);
+      break;
     
     case "authRequired":
       showState('auth-state');
