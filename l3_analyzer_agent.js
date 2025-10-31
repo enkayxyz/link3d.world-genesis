@@ -269,15 +269,16 @@ async function callGeminiExtractor(rawText) {
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: `${GEMINI_EXTRACT_PROMPT_PREFIX}${rawText}\n"""` }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
     }),
   });
   
   if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
   const data = await response.json();
-  const jsonString = data.candidates[0].content.parts[0].text.trim();
+  const text = data.candidates[0].content.parts[0].text.trim();
+  // Parse JSON from the text response
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("No JSON object found in Gemini response.");
+  const jsonString = jsonMatch[0];
   return JSON.parse(jsonString);
 }
 
