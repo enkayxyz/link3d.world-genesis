@@ -257,28 +257,41 @@ async function callGeminiExtractor(rawText) {
     }
   }
   
-  // Fallback to Gemini
+  // Fallback to Gemini with retry
   log("Analyzer(v22): Using Gemini fallback for extraction...");
   const apiKey = await getGeminiApiKey();
   if (!apiKey) throw new Error("No Gemini API key available.");
   
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: `${GEMINI_EXTRACT_PROMPT_PREFIX}${rawText}\n"""` }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
-    }),
-  });
-  
-  if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
-  const data = await response.json();
-  const jsonString = data.candidates[0].content.parts[0].text.trim();
-  return JSON.parse(jsonString);
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `${GEMINI_EXTRACT_PROMPT_PREFIX}${rawText}\n"""` }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+          },
+        }),
+      });
+      
+      if (response.status === 429) {
+        log(`Analyzer(v22): Rate limited (429), attempt ${attempt}/3. Waiting...`);
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Exponential backoff
+        continue;
+      }
+      
+      if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
+      const data = await response.json();
+      const jsonString = data.candidates[0].content.parts[0].text.trim();
+      return JSON.parse(jsonString);
+    } catch (e) {
+      if (attempt === 3) throw e;
+      log(`Analyzer(v22): Attempt ${attempt} failed: ${e.message}`);
+    }
+  }
 }
 
 /**
@@ -306,24 +319,37 @@ async function callGeminiSummarizer(aboutText) {
     }
   }
   
-  // Fallback to Gemini
+  // Fallback to Gemini with retry
   log("Analyzer(v22): Using Gemini fallback for summarization...");
   const apiKey = await getGeminiApiKey();
   if (!apiKey) throw new Error("No Gemini API key available.");
   
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: `${GEMINI_SUMMARY_PROMPT_PREFIX}${aboutText}${GEMINI_PROMPT_SUFFIX}` }] }],
-    }),
-  });
-  
-  if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text.trim();
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `${GEMINI_SUMMARY_PROMPT_PREFIX}${aboutText}${GEMINI_PROMPT_SUFFIX}` }] }],
+        }),
+      });
+      
+      if (response.status === 429) {
+        log(`Analyzer(v22): Rate limited (429), attempt ${attempt}/3. Waiting...`);
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Exponential backoff
+        continue;
+      }
+      
+      if (!response.ok) throw new Error(`Gemini API error: ${response.status}`);
+      const data = await response.json();
+      return data.candidates[0].content.parts[0].text.trim();
+    } catch (e) {
+      if (attempt === 3) throw e;
+      log(`Analyzer(v22): Attempt ${attempt} failed: ${e.message}`);
+    }
+  }
 }
 
 
